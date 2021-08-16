@@ -1,0 +1,188 @@
+/*20191121 css*/
+
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+font,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+sub,
+sup,
+tt,
+var,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+dialog,
+figure,
+header,
+footer,
+menu,
+nav,
+section,
+time,
+mark,
+audio,
+video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+}
+
+body {
+    font-family: 'Microsoft YaHei', arial, tahoma, \5b8b\4f53, sans-serif;
+    font-size: 16px;
+    color: #333;
+}
+
+div,
+section,
+nav,
+aside,
+header,
+footer,
+article,
+input,
+select,
+button,
+textarea,
+ul,
+li,
+a {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    /* Firefox */
+    -webkit-box-sizing: border-box;
+    /* Safari */
+}
+
+a:link,
+a:visited,
+a:hover,
+a:active {
+    text-decoration: none
+}
+
+a:focus {
+    border: 0;
+    outline: 0;
+}
+
+th {
+    font-weight: 500;
+}
+
+ul,
+ol {
+    list-style: none;
+}
+
+input,
+textarea,
+select,
+button {
+    font-size: 80%;
+    font-family: inherit;
+}
+
+input,
+select {
+    vertical-align: middle;
+}
+
+select {
+    margin: inherit;
+}
+
+button {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+    font-weight: 400;
+}
+
+
+/* Fixes incorrect placement of numbers in ol's in IE6/7 */
+
+ol {
+    margin-left: 2em;
+}
+
+
+/* ========================================= clearfix == */
+
+.clearfix:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+.clearfix {
+    display: block;
+}
+
+dfn,
+em {
+    font-style: normal
+}
+
+i {
+    display: inline-block;
+}

@@ -1,0 +1,167 @@
+<template>
+	<div class="home">
+		<router-link to="/">
+			<img src="@/assets/imgs/home/logo/index-select.png" class="icon">
+		</router-link>
+		<div class="content">
+			<logo />
+			<div class="text">
+				<span class="font1 active">用户登录</span>
+				<router-link to="/register"><span class="font2">用户注册</span></router-link>
+			</div>
+			<el-form :model="formData" :rules="rule" ref="form" class="ipt">
+				<el-form-item prop="username" class="bottom"><el-input v-model="formData.username" placeholder="用户名" clearable></el-input></el-form-item>
+				<el-form-item prop="password" class="bottom">
+					<el-input v-model="formData.password" placeholder="6-16位密码,区分大小写" clearable type="password"></el-input>
+				</el-form-item>
+				<el-form-item prop="captcha" class="bottom"><el-input v-model="formData.captcha" placeholder="请输入验证码" clearable></el-input></el-form-item>
+			</el-form>
+			<div class="captcha">
+				<img alt="如果看不清楚，请单击图片刷新" class="pointer" v-bind:src="imgUrl" @click="refreshCode()" />
+				<!-- <a href="javascript:;" @click="refreshCode()">点击刷新</a> -->
+			</div>
+			<div  class="font3"><span>忘记密码</span></div>
+			<button @click="login()">登录</button>
+		</div>
+	</div>
+</template>
+
+<script>
+import Logo from '@/components/logo.vue';
+import login from '@/api/login.js';
+import { setToken } from '@/utils/auth.js';
+export default {
+	data() {
+		return {
+			formData: {
+				username: '',
+				password: '',
+				captcha: ''
+			},
+			rule: {
+				username: [
+					{ required: true, message: '请输入姓名', trigger: 'blur' },
+					{ min: 3, max: 12, message: '长度在3到12个字符', trigger: 'blur' },
+					{
+						required: true,
+						pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,
+						message: '姓名不支持特殊字符',
+						trigger: 'blur'
+					}
+				],
+				password: [
+					{ required: true, message: '请输入密码', trigger: 'blur' },
+				],
+				captcha: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
+			},
+			isActive: true,
+			imgUrl: process.env.VUE_APP_BASE_API + '/admin/captcha.jpg?t=' + new Date().getTime()
+		};
+	},
+	components: {
+		Logo
+	},
+	methods: {
+		login: function() {
+			var params = {
+				username: this.formData.username,
+				password: this.formData.password,
+				captcha: this.formData.captcha
+			};
+			login.login(params).then(res => {
+				if (res.data.code == 0) {
+					setToken(res.data.token);
+					console.info(res.data.user);
+					this.$store.commit('setUserInfo', res.data.user);
+					this.$router.push('/detail');
+				} else {
+					alert(res.data.msg);
+				}
+			});
+		},
+		refreshCode: function() {
+			this.imgUrl = process.env.VUE_APP_BASE_API + '/admin/captcha.jpg?t=' + new Date().getTime();
+		}
+	}
+};
+</script>
+
+<style scoped>
+.home {
+	width: 100%;
+	height: 100%;
+	background-image: url('../../assets/imgs/login/组 172.png');
+}
+.content {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 450px;
+	height: 380px;
+	border: 1px solid #3d85d7;
+	margin-left: -225px;
+	margin-top: -190px;
+	border-radius: 20px;
+}
+.active {
+	color: #3d85d7;
+	border-bottom: 2px solid #3d85d7;
+}
+.text {
+	width: 350px;
+	margin-left: 60px;
+	text-align: center;
+	margin-top: 10px;
+}
+span {
+	cursor: pointer;
+	padding: 3px 25px;
+	font-size: 14px;
+}
+.ipt {
+	width: 50%;
+	margin-left: 110px;
+	margin-top: 15px;
+}
+.bottom {
+	margin-bottom: 18px;
+}
+.font3 {
+	color: #3d85d7;
+	font-size: 13px;
+	margin-left: 85px;
+	margin-top: 10px;
+}
+
+button {
+	width: 190px;
+	height: 30px;
+	background-color: #3d85d7;
+	border: none;
+	outline: none;
+	margin-left: 129px;
+	margin-top: 10px;
+	color: #fff;
+}
+.pointer {
+	width: 90px;
+	height: 38px;
+	margin-top: -22px;
+}
+.captcha {
+	margin-left: 345px;
+	margin-top: -36px;
+}
+.no {
+	float: right;
+	width: 250px;
+	margin-right: 94px;
+	color: red;
+}
+.icon{
+	width: 30px;
+	position: absolute;
+	top: 10px;
+	left: 10px;
+}
+</style>

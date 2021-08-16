@@ -1,0 +1,479 @@
+<template>
+	<div>
+		<div class="header1">
+			<div class="left">
+				<img src="@/assets/imgs/home/logo/Basement Logo1.png" />
+				<span>城市碳排分布可视化平台</span>
+			</div>
+			<div class="ulList">
+				<ul>
+					<li class="none" @click="clear">退出</li>
+				<!-- 	<li>提示</li>
+					<li>设置</li> -->
+					<li>admin</li>
+					<li class="none1">
+						<img src="@/assets/imgs/details/Icon_slices/Icon.png" />
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div style="clear: both"></div>
+		<el-menu :default-active="0" class="el-menu-demo" mode="horizontal" text-color="#000000" active-text-color="#3F75D4"
+		 @select="handleSelect">
+			<el-menu-item index="1"><i class="el-icon-circle-plus"></i>新建方案</el-menu-item>
+			<el-menu-item index="2" @click="historyCase()"><i class="el-icon-s-unfold"></i>历史方案</el-menu-item>
+			<el-submenu index="3">
+				<template slot="title"><i class="el-icon-s-cooperation"></i>计算</template>
+				<el-menu-item index="3-1">碳排量计算</el-menu-item>
+			</el-submenu>
+			<el-submenu index="4">
+				<template slot="title"><i class="el-icon-s-data"></i>分析</template>
+				<el-menu-item index="4-1">碳排量3D展示</el-menu-item>
+			</el-submenu>
+			<el-menu-item index="5"><i class="el-icon-s-claim"></i>报告</a></el-menu-item>
+		</el-menu>
+		<!-- 弹窗一 -->
+		<el-dialog title="新建方案" :visible.sync="dialogFormVisible"  :width="width" class="posi">
+			<el-form class="block">
+				<el-form-item label="方案名称" :label-width="formLabelWidth">
+					<el-col :span="18">
+						<el-input placeholder="请输入内容" v-model="caseName" clearable>
+						</el-input>
+					</el-col>
+				</el-form-item>
+				<el-form-item label="方案区域" :label-width="formLabelWidth">
+					<el-col :span="18" :label-width="formLabelWidth">
+						<List  @getArea="getArea"/>
+					</el-col>
+				</el-form-item>
+				<el-form-item label="设计类型" :label-width="formLabelWidth">
+					<el-col :span="18">
+						<el-input placeholder="总体规划" v-model="caseType" clearable disabled="disabled">
+						</el-input>
+					</el-col>
+				</el-form-item>
+				<el-form-item label="图形文件上传" :label-width="formLabelWidth">
+					<el-upload
+					  class="upload-demo"
+					  action="http://localhost:8080/UrbanCE/shape/upload"
+					  :on-preview="handlePreview" 
+					  :on-remove="handleRemove"
+					  :on-success="handleSuccess"
+					  :before-remove="beforeRemove"
+					  multiple
+					  :limit="1"
+					  :on-exceed="handleExceed"
+					  :file-list="fileList"
+					  v-model="caseFile"
+					  >
+					  <el-button size="large" type="primary" class="btn3">点击上传</el-button>
+					</el-upload>
+				</el-form-item>
+			</el-form>
+			<!-- <span class="tip">要求：上传文件为.shp格式并附有84经纬度坐标</span> -->
+			<div slot="footer" class="posi btn">
+				<el-button @click="dialogFormVisible = false">取 消</el-button>
+				<el-button type="primary" @click="dialogFormVisible = false,createCase()">确 定</el-button>
+			</div>
+		</el-dialog>
+		<!-- 弹窗二 -->
+		<el-dialog title="历史方案" :visible.sync="dialogTableVisible" class="posi" :width="width">
+			<el-table :data="gridData" class="top" :cell-style="cellStyle" :row-class-name="tableRowClassName">
+				<el-table-column property="num" width="50"></el-table-column>
+				<el-table-column v-if="false" property="caseId" ></el-table-column>
+				<el-table-column v-if="false" property="caseName" ></el-table-column>
+				<el-table-column property="city" width="200"></el-table-column>
+				<el-table-column property="circle" width="10"></el-table-column>
+				<el-table-column property="state" width="100"></el-table-column>
+				<el-table-column property="data" width="100"></el-table-column>
+				<el-table-column width="50" >
+					<template slot-scope="scope">
+					    <a href="javascript:;" @click="appearIndex(scope.row)">查看</a>
+					</template>
+				</el-table-column>
+			</el-table>
+		</el-dialog>
+		<!-- 弹窗三 -->
+		<el-dialog title="碳排量计算" :visible.sync="dialogVisible" width="30%" :show-close="false" :modal="false" class="posi">
+			<el-form class="block1">
+				<el-form-item label="城市人口" :label-width="formLabelWidth">
+					<el-col :span="18">
+						<el-input placeholder="可输入或后台提供数据" v-model="urbanPopulation" clearable>
+						</el-input>
+					</el-col>
+				</el-form-item>
+				<el-form-item label="规划期末总人口(人)" :label-width="formLabelWidth">
+					<el-col :span="18">
+						<el-input placeholder="请输入" v-model="planPopulation" clearable>
+						</el-input>
+					</el-col>
+				</el-form-item>
+				<el-form-item label="城市天然气销售量" :label-width="formLabelWidth">
+					<el-col :span="18">
+						<el-input placeholder="可输入或后台提供数据(统计年限)" v-model="urbanNaturalGas" clearable class="width">
+						</el-input>
+					</el-col>
+				</el-form-item>
+				<el-form-item label="居民家庭用气量" :label-width="formLabelWidth">
+					<el-col :span="18">
+						<el-input placeholder="可输入或后台提供数据(统计年限)" v-model="residentialNaturalGas" clearable class="width">
+						</el-input>
+					</el-col>
+				</el-form-item>
+				<el-form-item label="商业用气量占居民家庭用气量的比例" :label-width="formLabelWidth">
+					<el-col :span="18">
+						<el-input placeholder="可输入或后台提供数据" v-model="naturalGasRatio" clearable class="temp">
+						</el-input>
+					</el-col>
+				</el-form-item>
+				<!-- 
+				<el-form-item label="建议开发强度 R" :label-width="formLabelWidth">
+					<el-col :span="18">
+						<el-input placeholder="可输入或后台提供数据" v-model="R" clearable>
+						</el-input>
+					</el-col>
+				</el-form-item>
+				<el-form-item label="A" :label-width="formLabelWidth">
+					<el-col :span="18">
+						<el-input placeholder="可输入或后台提供数据" v-model="A" clearable>
+						</el-input>
+					</el-col>
+				</el-form-item>
+				<el-form-item label="B" :label-width="formLabelWidth">
+					<el-col :span="18">
+						<el-input placeholder="可输入或后台提供数据" v-model="B" clearable>
+						</el-input>
+					</el-col>
+				</el-form-item> -->
+			</el-form>
+			<div slot="footer" class="posi1">
+				<el-button @click="dialogVisible = false">取 消</el-button>
+				<el-button type="primary" @click="dialogVisible = false,ceComputed()">确 定</el-button>
+			</div>
+		</el-dialog>
+	</div>
+</template>
+<script>
+	import List from "@/components/common/List.vue";
+	import login from "@/api/login.js";
+	import caseinfo from "@/api/case.js";
+	import {jenks} from "@/utils/jenks.js";
+	export default {
+		components: {
+			List
+		},
+		data() {
+			return {
+				activeIndex: '1',
+				gridData: [],
+				dialogTableVisible: false,
+				dialogFormVisible: false,
+				dialogVisible: false,
+				formLabelWidth:'140px',
+				width: '30%',
+				width1:'30%',
+				caseName:'',
+				caseType:'',
+				caseFile:'',
+				province:'',
+				city:'',
+				area:'',
+				urbanPopulation:'',
+				urbanNaturalGas:'',
+				residentialNaturalGas:'',
+				naturalGasRatio:'',
+				planPopulation:'',
+				R:'',
+				A:'',
+				B:'',
+				fileList:[]
+			};
+		},
+		methods: {
+			handleSelect(key, keyPath) {
+				if(key == "1"){
+					this.dialogFormVisible = true;
+				}else if(key == "2"){
+					this.dialogTableVisible = true;
+				}else if(key == "3-1"){
+					this.dialogVisible = true;
+				}else if(key == "4-1"){
+					this.$router.push('/display3D');
+				}
+				},
+			cellStyle({column,columnIndex}){
+			   if(columnIndex==2){
+				   return "font-size:40px;color:rgba(82, 196, 26, 1);"
+			   }else if(columnIndex==5){
+				   return {
+					   cursor:'pointer'
+				   }
+			   }
+			},
+			tableRowClassName ({row, rowIndex}) {
+			   row.index = rowIndex;
+			},
+			onRowClick (row, event, column) {
+			  const index = row.index;
+			},
+			appearIndex(row){
+				this.$store.commit('setCaseInfo', row);
+				if(row.state == 0){
+					alert("请先进行计算")
+				}else{
+					this.planCE(); 
+				}
+			},
+			clear(){
+				this.$store.commit('setCaseInfo', null);
+				this.$store.commit('setCaseBasicData', {});
+				this.$router.push('/login');
+			},
+			handlePreview(file) {
+			    console.log(file);
+			},
+			handleRemove(file, fileList) {
+			    console.log(file, fileList);
+			},
+			beforeRemove(file, fileList) {
+			    return this.$confirm(`确定移除 ${ file.name }？`);
+			},
+			handleExceed(files, fileList) {
+			    this.$message.warning(`当前限制选择1个文件`);
+			},
+			handleSuccess(response,file,fileList){
+				this.caseFile=response.jsonmap.filePath;
+			},
+			getArea(lable){
+				this.province=lable[0]
+				this.city=lable[1]
+				this.area=lable[2]
+			},
+			createCase: function() {
+				var params = {
+					caseName:this.caseName,
+					// caseType:this.caseType,
+					caseFile:this.caseFile,
+					province:this.province,
+					city:this.city,
+					area:this.area,
+				};
+				caseinfo.createCase(params).then(res => {
+					console.log(res)
+					if (res.data.code == 0) {
+						console.log(res.data)
+						this.$store.commit('setCaseInfo', res.data); 
+					} else {
+						alert(res.data.msg);
+					}
+				});
+			},
+			ceComputed:function(){
+				var params={
+					urbanPopulation:this.urbanPopulation,
+					urbanNaturalGas:this.urbanNaturalGas,
+					residentialNaturalGas:this.residentialNaturalGas,
+					naturalGasRatio:this.naturalGasRatio,
+					planPopulation:this.planPopulation,
+					caseId:this.$store.getters.getCaseInfo.caseId
+				};
+				caseinfo.ceComputed(params).then(res => {
+					if (res.data.code == 0) {
+						var arr = JSON.parse("[" + res.data.jenksList + "]");
+						this.$store.commit('setJenks', jenks(arr,5));
+						this.$store.commit('setCaseBasicData', res.data.areaCE);
+						this.$router.push('/detail');
+						if(	this.$route.path == '/detail'){
+							this.$router.go(0)
+						}else{
+							this.$router.push('/detail');
+						}
+					} else {
+						alert(res.data.msg);
+					}
+				}); 
+			},
+			
+			timestampToTime:function(timestamp) {
+			    var date = new Date(timestamp * 1000);
+			    var Y = date.getFullYear() + '-';
+			    var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+			    var D = date.getDate() + '';
+			    return Y + M + D;
+			},
+			historyCase:function(){
+				var params={
+					offset:0,
+					limit:20,
+					sort:'createTime',
+					order:'desc',
+				};
+				caseinfo.historyCase(params).then(res=>{
+					if (res.data.code == 0) {
+						this.gridData = [];
+							for(var i=0;i<res.data.page.list.length;i++){
+								this.gridData.push({
+									num: i+1,
+									caseId:res.data.page.list[i].caseId,
+									caseName:res.data.page.list[i].caseName,
+									city: res.data.page.list[i].province+res.data.page.list[i].city,
+									circle:'·',
+									state: res.data.page.list[i].state,
+									data:this.timestampToTime(res.data.page.list[i].createTime),
+									href:'查看'
+								})
+							}
+						}else {
+						alert(res.data.msg);
+					}
+				})
+			},
+			planCE:function(){
+				var params={
+					caseId:this.$store.getters.getCaseInfo.caseId
+				};
+				caseinfo.planCE(params).then(res=>{
+					if (res.data.code == 0) {
+						var arr = JSON.parse("[" + res.data.jenksList + "]");
+						this.$store.commit('setJenks', jenks(arr,5));
+						this.$store.commit('setCaseBasicData', res.data.areaCE);
+						if(	this.$route.path == '/detail'){
+							this.$router.go(0)
+						}else{
+							this.$router.push('/detail');
+						}
+					}else {
+						alert(res.data.msg);
+					}
+				})
+			},
+		}
+	}
+</script>
+<style scoped>
+	.header1 {
+		position: relative;
+		width: 100%;
+		height: 50px;
+		background: linear-gradient(to bottom, #3d85d7, #5c6dc3);
+	}
+
+	.header1 .left {
+		width: 300px;
+	}
+
+	.header1 .left img {
+		margin-top: 7px;
+		margin-left: 40px;
+		width: 29px;
+		height: 35px;
+	}
+
+	.header1 span {
+		color: #ffffff;
+		position: absolute;
+		top: 16px;
+		left: 80px;
+	}
+
+	.header1 ul {
+		position: absolute;
+		right: 40px;
+		top: 16px;
+		margin-right: 80px;
+	}
+
+	.header1 ul li {
+		float: right;
+		border-right: 1px solid #fff;
+		padding: 0 10px;
+		color: #fff;
+		cursor: pointer;
+	}
+
+	.header1 ul li img {
+		width: 12px;
+	}
+
+	.ulList .none {
+		border: none;
+	}
+
+	.ulList .none1 {
+		border: none;
+		margin-right: -12px;
+	}
+
+	.ulList .btn {
+		position: absolute;
+		right: 30px;
+		top: 16px;
+		text-align: center;
+		line-height: 20px;
+		width: 58px;
+		height: 22px;
+		border: 1px solid white;
+		cursor: pointer;
+		color: #fff;
+	}
+
+	.ulList .btn1 {
+		float: left;
+		width: 28px;
+	}
+
+	.ulList .btn2 {
+		float: left;
+		width: 28px;
+	}
+
+	.ulList .active {
+		background-color: #3c86d8;
+		color: #fff;
+	}
+	.bgc{
+		background-color: #FFF;
+		border: 1px solid rgb(220, 223, 230);
+		color: rgb(192, 196, 204);
+		margin-left: -265px;
+	}
+	.tip{
+		font-size: 12px;
+		color: rgb(192, 196, 204);
+		margin-left: 60px;
+	}
+	.block{
+		margin-left:30px;
+	}
+	.posi{
+			text-align: center;
+	}
+	.btn{
+		margin-top: -20px;
+	}
+	.top{
+		margin-top: -43px;
+		margin-left: 10px;
+	}
+	.circle{
+		color: #FF52C41A;
+	}
+	.block1{
+		margin-left: 60px;
+		margin-top: -10px;
+		text-align: center;
+	}
+	.posi1{
+		text-align: center;
+		margin-top: -30px;
+	}
+	.temp{
+		margin-top: 19px;
+	}
+	.btn3{
+		margin-left: -268px;
+	}
+	.upload-demo{
+		background-color: #FFF;
+	}
+</style>

@@ -1,0 +1,85 @@
+<template>
+  <div class="content">
+    <div class="Item">
+      <div class="item1">
+        <div class="head">碳排量估算</div>
+        <img src="@/assets/imgs/function/func_computer.png" alt />
+        <div
+          class="font"
+        >城市碳排分布可视化平台是一个基于现行规划技术标准和规范，针对城市总体规划，实现规划方案用地碳排量估算并可视化呈现的应用平台。为规划师提供规划方案地块及组团片区碳排量估算值并可视化表达，进而辅助优化方案；同时为政府提供城市总体规划下的碳排总量估算，分析规划方案内高/低碳排区，从而做出科学决策，进一步推动低碳城市的发展。</div>
+      </div>
+      <div class="item2">
+        <div class="head">碳排量可视化</div>
+        <img src="@/assets/imgs/function/func_map.png" alt />
+        <div
+          class="font1"
+        >基于地理信息系统（GIS）平台，通过不同颜色色块来表示总体规划方案内居住、商业、公服各地块的二氧化碳排放量并通过可视化的方式呈现在地图上，其中不同颜色代表不同碳排量区间值。同时用户可在平台内自由选择底图风格、要素图层、以及不同色带自定义图面样式，并提供下载功能。</div>
+      </div>
+      <div class="item3">
+        <div class="head">碳排量分析</div>
+        <img src="@/assets/imgs/function/func_map1.png" alt />
+        <div class="font1">基于城市总体规划方案碳排量分布图，应用核密度分析方法，呈现/生成城市规划方案碳排热力图，从而分析出方案内高/低碳排区。</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "funct"
+};
+</script>
+
+<style scoped>
+.content {
+  width: 1200px;
+  height: 500px;
+  margin: 90px auto;
+}
+.Item {
+  width: 980px;
+  height: 400px;
+  margin: 50px auto;
+}
+.item1,
+.item2 {
+  width: 300px;
+  height: 400px;
+  float: left;
+  margin-right: 40px;
+  border-radius: 20px;
+  box-shadow: 0px 20px 40px rgba(57, 94, 161, 0.15);
+}
+.item3 {
+  width: 300px;
+  height: 400px;
+  float: left;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0px 20px 40px rgba(57, 94, 161, 0.15);
+}
+.head {
+  text-align: center;
+  height: 40px;
+  line-height: 40px;
+  font-size: 14px;
+  background-color: #3d85d7;
+  color: #fff;
+}
+img {
+  width: 280px;
+  margin-left: 10px;
+  margin-top: 10px;
+}
+.font {
+  width: 280px;
+  font-size: 12px;
+  margin: 0 auto;
+  line-height: 20px;
+}
+.font1 {
+  width: 280px;
+  font-size: 12px;
+  margin: 17px auto;
+  line-height: 20px;
+}
+</style>

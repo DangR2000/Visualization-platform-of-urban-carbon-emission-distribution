@@ -1,0 +1,58 @@
+<template>
+  <div>
+    <div class="image">
+      <img src="@/assets/imgs/introduce/hierarchy.png" alt />
+    </div>
+    <div class="content">
+      <div
+        class="font"
+      >城市碳排分布可视化平台是一个基于现行规划技术标准和规范，针对城市总体规划，实现规划方案用地碳排量估算并可视化呈现的应用平台。为规划师提供规划方案地块及组团片区碳排量估算值并可视化表达，进而辅助优化方案；同时为政府提供城市总体规划下的碳排总量估算，分析规划方案内高/低碳排区，从而做出科学决策，进一步推动低碳城市的发展。</div>
+      <button>新建方案</button>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "about"
+};
+</script>
+
+<style scoped>
+.image {
+  float: left;
+  margin-left: 290px;
+  margin-top: 80px;
+}
+img {
+  width: 400px;
+}
+.content {
+  position: absolute;
+  left: 500px;
+  top: 225px;
+  float: right;
+  width: 640px;
+  height: 320px;
+  border: 1px solid #3c86d8;
+  z-index: -1;
+}
+.font {
+  width: 400px;
+  font-size: 14px;
+  line-height: 30px;
+  margin: 30px auto;
+  margin-left: 200px;
+}
+button {
+  width: 176px;
+  height: 40px;
+  background-color: #3c86d8;
+  border: 0;
+  outline: none;
+  color: #ffffff;
+  font-size: 12px;
+  margin-left: 215px;
+  margin-top: -15px;
+}
+</style>

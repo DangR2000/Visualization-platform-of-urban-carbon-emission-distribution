@@ -1,0 +1,64 @@
+import Vue from "vue";
+import VueRouter from "vue-router";
+// import login from "@/views/login/login.vue";
+// import register from "@/views/login/register.vue";
+// import Details from "@/views/details/Detail";
+// import display3D from "@/views/details/display3D";
+// import echart from "@/views/details/echart.vue";
+import index from "../components/index";
+import loginRegister from "../components/login_register";
+import profile from "../views/profile";
+import elem from "@/views/elem";
+import eviron from "@/views/eviron";
+import land from "@/views/land";
+import combination from "@/views/combination";
+Vue.use(VueRouter);
+
+const routes = [
+		{
+	        path: '/',
+	        name: 'loginRegister',
+	        component: loginRegister
+	    },
+	    {
+	        path: '/index',
+	        name: 'index',
+	        component: index,
+	        redirect:'/index/profile',
+	        children:[
+				{
+					path:'/index/profile',
+					name:'profile',
+					component:profile
+				},
+				{
+					path:'/index/eviron',
+					name:'eviron',
+					component:eviron
+				},
+				{
+					path:'/index/land',
+					name:'land',
+					component:land
+				},
+				{
+					path:'/index/combination',
+					name:'combination',
+					component:combination
+				},
+				{
+					path:'/index/elem',
+					name:'elem',
+					component:elem
+				},
+			]
+		},
+]
+
+const router = new VueRouter({
+   // mode: "history",
+    base: process.env.BASE_URL,
+    routes,
+});
+
+export default router;

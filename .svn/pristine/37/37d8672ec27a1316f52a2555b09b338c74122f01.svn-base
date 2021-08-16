@@ -1,0 +1,448 @@
+<template>
+	<div>
+		<NavMenu />
+		<div class="content">
+			<div class="left">
+				<p>{{caseName}}</p>
+				<!-- <div class="spn">
+					<img src="../../assets/imgs/details/num/组 163.png" />
+					<span>参数查看</span>
+				</div>
+				<div class="spn">
+					<img src="../../assets/imgs/details/select/组 160.png" />
+					<span>框选</span>
+				</div>
+				<div class="spn">
+					<img src="../../assets/imgs/details/store/组 159.png" />
+					<span>保存</span>
+				</div> -->
+				<div class="spn">
+					<img src="../../assets/imgs/details/download/组 158.png" />
+					<span>下载</span>
+				</div>
+
+				<!-- <div class="spn">
+					<img src="../../assets/imgs/details/return/组 156.png" />
+					<span>撤回</span>
+				</div> -->
+				<div id="container" class="map">
+					<div id="cesiumContainer"></div>
+				</div>
+			</div>
+			<div class="right">
+				<!--<p class="posi">图层</p>
+	    <div class="top">
+	      <ul>
+	        <li class="border">
+	          <img src="../../assets/imgs/details/down/Group.png" />
+	          <span>底图</span>
+	          <input type="checkbox" />
+	        </li>
+	        <li>
+	          <img src="../../assets/imgs/details/down/Group.png" />
+	          <span>要素图层</span>
+	          <input type="checkbox" />
+	          <ul class="small">
+	            <li>
+	              <span>路网</span>
+	              <input type="checkbox" />
+	            </li>
+	            <li>
+	              <span>用地属性</span>
+	              <input type="checkbox" />
+	            </li>
+	            <li>
+	              <span>碳排放量</span>
+	              <input type="checkbox" />
+	            </li>
+	          </ul>
+	        </li>
+	        <li class="border">
+	          <img src="../../assets/imgs/details/down/Group.png" />
+	          <span>色带</span>
+	          <input type="checkbox" />
+	        </li>
+	        <li>
+	          <img src="../../assets/imgs/details/down/Group.png" />
+	          <span>标注</span>
+	          <input type="checkbox" />
+	        </li>
+	        <li>
+	          <img src="../../assets/imgs/details/down/Group.png" />
+	          <span>三维表达</span>
+	          <input type="checkbox" />
+	        </li>
+	      </ul>
+	    </div>-->
+				<p class="posi">碳排放量</p>
+				<div class="bottom" v-if="jenks !==undefined && jenks.length > 0">
+					<div><span class="soft legend2"></span><span class="softer1">{{jenks[0]}} - {{jenks[1]}}</span></div>
+					<div><span class="soft legend2"></span><span class="softer1">{{jenks[1]}} - {{jenks[2]}}</span></div>
+					<div><span class="soft legend3"></span><span class="softer1">{{jenks[2]}} - {{jenks[3]}}</span></div>
+					<div><span class="soft legend4"></span><span class="softer1">{{jenks[3]}} - {{jenks[4]}}</span></div>
+					<div><span class="soft legend5"></span><span class="softer1">{{jenks[4]}} - {{jenks[5]}}</span></div>
+					<div><span class="soft legend6"></span><span class="softer1">研究范围外</span></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>
+<script>
+	import NavMenu from "@/components/index/NavMenu.vue";
+	export default {
+		name: "Detail",
+		components: {
+			NavMenu,
+		},
+		data() {
+			return {
+				dialogTableVisible: false,
+				dialogFormVisible: false,
+				width: '30%',
+				width1: '30%',
+				formLabelWidth: '140px',
+				dddd: this.$store.getters.getCaseBasicData,
+				caseName:this.$store.getters.getCaseInfo.caseName,
+				jenks:[]
+			};
+		},
+		mounted() {
+			this.jenks = this.$store.getters.getJenks;
+			this.show3D();
+		},
+
+		methods: {
+			show3D:function(){
+				
+				var Cesium = this.Cesium;
+				var cesiumContainer = document.getElementById("cesiumContainer");
+				Cesium.Camera.DEFAULT_VIEW_RECTANGLE = Cesium.Rectangle.fromDegrees(90, -20, 110, 90); //西南东北，默认显示中国
+				Cesium.Camera.DEFAULT_VIEW_FACTOR = 0 //摄像机视口远近参数，可设置地球大小
+				var viewer = new Cesium.Viewer("cesiumContainer", {
+					//加载在线谷歌地图
+					url: "https://t0.tianditu.com/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=93d1fdef41f93d2211deed6d22780c48",
+					layer: "tdtVecBasicLayer",
+					style: "default",
+					format: "image/jpeg",
+					tileMatrixSetID: "GoogleMapsCompatible",
+					show: false,
+					animation: false, //是否显示动画控件
+					shouldAnimate: true,
+					homeButton: true, //是否显示Home按钮
+					fullscreenButton: false, //是否显示全屏按钮
+					baseLayerPicker: true, //是否显示图层选择控件
+					geocoder: false, //是否显示地名查找控件
+					timeline: false, //是否显示时间线控件
+					sceneModePicker: false, //是否显示投影方式控件
+					navigationHelpButton: false, //是否显示帮助信息控件
+					infoBox: false, //是否显示点击要素之后显示的信息
+					requestRenderMode: true, //启用请求渲染模式
+					scene3DOnly: false, //每个几何实例将只能以3D渲染以节省GPU内存
+					sceneMode: 3, //初始场景模式 1 2D模式 2 2D循环模式 3 3D模式  Cesium.SceneMode
+					fullscreenElement: document.body, //全屏时渲染的HTML元素
+				})
+				var _this = this;
+				//去除 版权图标
+				viewer._cesiumWidget._creditContainer.style.display = "none";
+				Cesium.Math.setRandomNumberSeed(0);
+				var promise = Cesium.GeoJsonDataSource.load(JSON.parse(this.dddd));
+				promise.then(function(dataSource) {
+					viewer.dataSources.add(dataSource);
+					var entities = dataSource.entities.values;
+					var colorHash = {};
+					for (var i = 0; i < entities.length; i++) {
+				
+						var entity = entities[i];
+						// console.info(entity)
+						var name = entity._properties._fid._value;
+						var planCe = entity._properties._planCe._value;
+						var color = colorHash[name];
+						// console.info(planCe);
+						if (!color) {
+							color = 'red';
+							colorHash[name] = color;
+						}
+						// entity.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY; //去掉地形遮挡
+						// Tells the polygon to color the terrain. ClassificationType.CESIUM_3D_TILE will color the 3D tileset, and ClassificationType.BOTH will color both the 3d tiles and terrain (BOTH is the default)
+						entity.polygon.classificationType = Cesium.ClassificationType.TERRAIN;
+						// 设置多边形 的材质 和透明    entity.polygon.material = Cesium.Color.LIGHTGREEN.withAlpha(0.5);
+						//多种颜色配置1、Cesium.Color.RED   RED必须大写 
+						//2、透明度Cesium.Color.RED.withAlpha(0.1)
+						//3、16进制颜色设置Cesium.Color.fromCssColorString('#67ADDF')
+						//4、随机颜色Cesium.Color.fromRandom()
+						if (_this.jenks[0] < planCe && planCe <= _this.jenks[1]) {
+							entity.polygon.material = Cesium.Color.fromCssColorString('#F8FED2');
+						} else if (_this.jenks[1] < planCe && planCe <= _this.jenks[2]) {
+							entity.polygon.material = Cesium.Color.fromCssColorString('#BFDAD1')
+						} else if (_this.jenks[2] < planCe && planCe <= _this.jenks[3]) {
+							entity.polygon.material = Cesium.Color.fromCssColorString('#6EB8C5')
+						} else if (_this.jenks[3] < planCe && planCe <= _this.jenks[4]) {
+							entity.polygon.material = Cesium.Color.fromCssColorString('#3474A0')
+						} else if (_this.jenks[4] < planCe && planCe <= _this.jenks[5]) {
+							entity.polygon.material = Cesium.Color.fromCssColorString('#284E73')
+						} else {
+							entity.polygon.material = Cesium.Color.fromCssColorString('#E1E1E1')
+						}
+						
+				
+				
+						entity.polygon.outline = true;
+						entity.polygon.outlineColor = Cesium.Color.LIGHTGREEN.withAlpha(1);
+						entity.polygon.outlineWidth = 2;
+						//设置高度
+						entity.polygon.extrudedHeight = planCe/100;
+						//计算生成polygon的中心位置
+						var polyPositions = entity.polygon.hierarchy.getValue(Cesium.JulianDate.now()).positions;
+						var polyCenter = Cesium.BoundingSphere.fromPoints(polyPositions).center;
+						polyCenter = Cesium.Ellipsoid.WGS84.scaleToGeodeticSurface(polyCenter);
+						entity.position = polyCenter;
+						// 实体标签 显示的信息设置
+						entity.label = {
+							// position:
+							//text: entity._properties._planCe._value == 0 ? "" : (entity._properties._fid._value).toString(),
+							color: Cesium.Color.fromCssColorString('#fff'),
+							font: 'normal 32px MicroSoft YaHei',
+							showBackground: true,
+							scale: 0.5,
+							horizontalOrigin: Cesium.HorizontalOrigin.LEFT_CLICK,
+							verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+							distanceDisplayCondition: new Cesium.DistanceDisplayCondition(10.0, 10000.0),
+							disableDepthTestDistance: 1000.0
+						}
+					}
+				});
+				//单体选择
+				var labelEntity = viewer.entities.add({
+					label: {
+						show: false,
+						showBackground: true,
+						font: '14px monospace',
+						horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
+						verticalOrigin: Cesium.VerticalOrigin.TOP,
+						pixelOffset: new Cesium.Cartesian2(15, 0),
+					}
+				});
+				var scene = viewer.scene;
+				var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+	/* 			handler.setInputAction(function(click){
+						var pickedObject = scene.pick(click.endPosition);
+						console.info(pickedObject);
+				},Cesium.ScreenSpaceEventType.LEFT_CLICK); */
+				
+				
+				// 鼠标移入labelEntity提示框
+				handler.setInputAction(function(movement) {
+					var foundPosition = false;
+					if (scene.mode !== Cesium.SceneMode.MORPHING) {
+						var pickedObject = scene.pick(movement.endPosition);
+						if (scene.pickPositionSupported && Cesium.defined(pickedObject) && pickedObject.id._properties._planCe._value !=
+							0) {
+							var cartesian = viewer.scene.pickPosition(movement.endPosition);
+							if (Cesium.defined(cartesian)) {
+								var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+								labelEntity.position = cartesian;
+								labelEntity.label.show = true;
+								labelEntity.label.text = pickedObject.id._properties._fid._value + " : " + pickedObject.id._properties._planCe
+									._value;
+				
+								labelEntity.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -cartographic.height * (scene.mode === Cesium.SceneMode
+									.SCENE2D ? 10 : 10));
+				
+								foundPosition = true;
+							}
+						}
+					}
+				
+					if (!foundPosition) {
+						labelEntity.label.show = false;
+					}
+				}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+				
+				viewer.flyTo(promise);
+				viewer.homeButton.viewModel.command.beforeExecute.addEventListener(function(e) {
+					e.cancel = true;
+					//你要飞的位置
+					viewer.flyTo(promise)
+				});
+			}
+		}
+	};
+</script>
+
+<style scoped>
+	.soft {
+		display: inline-block;
+		width: 30px;
+		height: 12px;
+		border: 1px solid #000;
+		margin-right: 10px;
+	}
+
+	.bottom div {
+		margin: 10px 20px;
+	}
+
+	.legend1 {
+		background-color: #F8FED2;
+		margin-top: 2px;
+	}
+
+	.legend2 {
+		background-color: #BFDAD1;
+		margin-top: 2px;
+	}
+
+	.legend3 {
+		background-color: #6EB8C5;
+		margin-top: 2px;
+	}
+
+	.legend4 {
+		background-color: #3474A0;
+		margin-top: 2px;
+	}
+
+	.legend5 {
+		background-color: #284E73;
+		margin-top: 2px;
+	}
+
+	.legend6 {
+		background-color: #E1E1E1;
+		margin-top: 2px;
+	}
+
+	.content {
+		height: 1000px;
+		background-color: #f0f2f5;
+	}
+
+	.left {
+		float: left;
+		margin-left: 30px;
+		margin-top: 20px;
+		width: 81%;
+		height: 80%;
+		overflow: hidden;
+		border-radius: 10px;
+		background-color: #fff;
+	}
+
+	.left p {
+		float: left;
+		padding-left: 30px;
+		padding-top: 10px;
+	}
+
+	.left .spn {
+		background-color: rgb(71, 119, 215);
+		color: #fff;
+		font-size: 14px;
+		padding: 3px 8px;
+		border-radius: 10%;
+		float: right;
+		margin-right: 20px;
+		margin-top: 15px;
+		cursor: pointer;
+	}
+
+	.spn img {
+		position: relative;
+		top: 3px;
+		left: -3px;
+	}
+
+	.spn span {
+		position: relative;
+		top: -2px;
+		left: -2px;
+		height: 100%;
+	}
+
+	.map {
+		width: 97%;
+		height: 90%;
+		margin-left: 25px;
+		margin-top: 55px;
+		overflow: hidden;
+	}
+
+	.right {
+		float: right;
+		margin-right: 30px;
+		margin-top: 20px;
+		width: 15%;
+		height: 80%;
+		border-radius: 10px;
+		background-color: #fff;
+	}
+
+	.posi {
+		margin-left: 15px;
+		margin-top: 10px;
+	}
+
+	.right .top {
+		position: relative;
+		width: 90%;
+		height: 260px;
+		margin-left: 10px;
+		margin-top: 10px;
+		background-color: #f0f2f5;
+	}
+
+	.right ul {
+		width: 100%;
+	}
+
+	.right ul li {
+		padding: 5px 0;
+		color: rgb(86, 86, 86);
+		font-size: 14px;
+	}
+
+	.right ul li .border {
+		border-bottom: 1px solid #d9d9d9;
+	}
+
+	.right ul li img {
+		margin-left: 16px;
+	}
+
+	.right ul li span {
+		margin-left: 5px;
+	}
+
+	.right ul li input {
+		position: absolute;
+		right: 10px;
+		margin-right: 3px;
+	}
+
+	.small {
+		margin-top: 10px;
+		border-left: 1px solid #f0f2f5;
+		background: #fff;
+	}
+
+	.small li:hover {
+		background-color: rgb(232, 244, 253);
+	}
+
+	.small span {
+		padding-left: 32px;
+	}
+
+	.none {
+		border: none;
+	}
+
+	.right .bottom {
+		position: relative;
+		width: 90%;
+		height: 200px;
+		margin-top: 10px;
+		margin-left: 10px;
+		background-color: #f0f2f5;
+	}
+</style>
